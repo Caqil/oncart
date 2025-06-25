@@ -541,6 +541,13 @@ function transformPrismaUserToNextAuthUser(prismaUser: any): NextAuthUser {
     preferredLanguage: prismaUser.preferredLanguage,
     preferredCurrency: prismaUser.preferredCurrency,
     twoFactorEnabled: prismaUser.twoFactorEnabled,
+    permissions: prismaUser.permissions
+      ? prismaUser.permissions
+      : (prismaUser.roles
+          ? prismaUser.roles.flatMap((role: any) =>
+              role.permissions ? role.permissions.map((p: any) => p.name) : []
+            )
+          : []),
   };
 }
 

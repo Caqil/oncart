@@ -277,7 +277,7 @@ export class PermissionValidator {
   }
 
   static getPermissionsForRole(role: UserRole): string[] {
-    return ROLE_PERMISSIONS[role] || [];
+    return Array.from(ROLE_PERMISSIONS[role] || []);
   }
 
   static getAllPermissions(): Permission[] {

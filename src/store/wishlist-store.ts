@@ -1,6 +1,6 @@
+import { WishlistItem } from '@/types/wishlist';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { WishlistItem } from '@/types/user';
 
 interface WishlistState {
   items: WishlistItem[];
@@ -164,7 +164,7 @@ export const useWishlistStore = create<WishlistStore>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               productId: item.productId,
-              variantId: item.productVariantId,
+              variantId: item.variantId,
               quantity,
             }),
           });
@@ -221,7 +221,7 @@ export const useWishlistStore = create<WishlistStore>()(
         const items = get().items;
         return items.some(item => 
           item.productId === productId && 
-          item.productVariantId === variantId
+          item.variantId === variantId
         );
       },
       
@@ -232,7 +232,7 @@ export const useWishlistStore = create<WishlistStore>()(
       getItemByProduct: (productId: string, variantId?: string) => {
         return get().items.find(item => 
           item.productId === productId && 
-          item.productVariantId === variantId
+          item.variantId === variantId
         );
       },
       

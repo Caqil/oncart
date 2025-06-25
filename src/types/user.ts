@@ -163,23 +163,6 @@ export interface UserStats {
   averageRating: number;
 }
 
-export interface WishlistItem {
-  id: string;
-  userId: string;
-  productId: string;
-  productVariantId?: string | null;
-  addedAt: Date;
-  product: {
-    id: string;
-    name: string;
-    slug: string;
-    images: string[];
-    price: number;
-    comparePrice?: number | null;
-    inStock: boolean;
-  };
-}
-
 export interface RecentlyViewed {
   id: string;
   userId: string;

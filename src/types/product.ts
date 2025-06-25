@@ -533,3 +533,30 @@ export interface ProductComparison {
     type: 'text' | 'number' | 'boolean' | 'rating';
   }>;
 }
+export interface ProductFilters {
+  categories: string[];
+  vendors: string[];
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  rating: number;
+  inStock: boolean;
+  onSale: boolean;
+  featured: boolean;
+  tags: string[];
+  brands?: string[];
+  colors?: string[];
+  sizes?: string[];
+  availability?: 'IN_STOCK' | 'OUT_OF_STOCK' | 'BACKORDER';
+  shippingOptions?: string[];
+  dateRange?: {
+    from: Date;
+    to: Date;
+  };
+}
+
+export interface ProductSort {
+  field: 'name' | 'price' | 'rating' | 'sales' | 'views' | 'createdAt' | 'updatedAt';
+  direction: 'asc' | 'desc';
+}

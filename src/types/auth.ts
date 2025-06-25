@@ -1,3 +1,5 @@
+import { NotificationPreferences, UserPreferences } from "./user";
+
 // src/types/auth.ts - Fixed circular reference
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
@@ -42,6 +44,7 @@ export interface AppUser {
   providerId?: string | null;
   password?: string | null;
   phone?: string | null;
+  preferences?: UserPreferences | null;
   dateOfBirth?: Date | null;
   gender?: Gender | null;
   preferredLanguage: string;

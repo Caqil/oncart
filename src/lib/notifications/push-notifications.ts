@@ -145,6 +145,11 @@ export abstract class PushProviderBase {
     this.config = config;
   }
 
+  // Add this public method to access the provider type
+  public getProviderType(): PushProvider {
+    return this.config.provider;
+  }
+
   abstract initialize(): Promise<boolean>;
   abstract sendPush(message: PushMessage): Promise<PushResponse>;
   abstract sendToDevice(deviceToken: string, message: PushMessage): Promise<PushResponse>;
@@ -758,45 +763,45 @@ export class PushNotificationService {
 
   // Bulk send to multiple users
   async sendBulkPush(
-    recipients: Array<{
-      userId: string;
-      templateId: string;
-      variables?: Record<string, string>;
-    }>,
-    options: { batchSize?: number; delayBetweenBatches?: number } = {}
-  ): Promise<PushResponse[]> {
-    const { batchSize = 100, delayBetweenBatches = 1000 } = options;
-    const results: PushResponse[] = [];
+  recipients: Array<{
+    userId: string;
+    templateId: string;
+    variables?: Record<string, string>;
+  }>,
+  options: { batchSize?: number; delayBetweenBatches?: number } = {}
+): Promise<PushResponse[]> {
+  const { batchSize = 100, delayBetweenBatches = 1000 } = options;
+  const results: PushResponse[] = [];
 
-    for (let i = 0; i < recipients.length; i += batchSize) {
-      const batch = recipients.slice(i, i + batchSize);
-      
-      const batchPromises = batch.map(recipient =>
-        this.sendToUser(recipient.userId, recipient.templateId, recipient.variables)
-      );
+  for (let i = 0; i < recipients.length; i += batchSize) {
+    const batch = recipients.slice(i, i + batchSize);
+    
+    const batchPromises = batch.map(recipient =>
+      this.sendToUser(recipient.userId, recipient.templateId, recipient.variables)
+    );
 
-      const batchResults = await Promise.allSettled(batchPromises);
-      
-      batchResults.forEach(result => {
-        if (result.status === 'fulfilled') {
-          results.push(result.value);
-        } else {
-          results.push({
-            success: false,
-            provider: this.provider.config.provider,
-            sentAt: new Date(),
-          });
-        }
-      });
-
-      // Delay between batches
-      if (i + batchSize < recipients.length) {
-        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+    const batchResults = await Promise.allSettled(batchPromises);
+    
+    batchResults.forEach(result => {
+      if (result.status === 'fulfilled') {
+        results.push(result.value);
+      } else {
+        results.push({
+          success: false,
+          provider:getProviderType(), // Now using public method
+          sentAt: new Date(),
+        });
       }
-    }
+    });
 
-    return results;
+    // Delay between batches
+    if (i + batchSize < recipients.length) {
+      await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+    }
   }
+
+  return results;
+}
 
   // Template management
   addTemplate(template: Omit<PushTemplate, 'id' | 'createdAt' | 'updatedAt'>): string {
@@ -1004,8 +1009,6 @@ export const PUSH_TEMPLATES = {
     platform: 'ALL' as const,
   },
 };
-
-// Helper functions for common push notifications
 export async function sendOrderConfirmationPush(
   pushService: PushNotificationService,
   order: Order,
@@ -1086,3 +1089,11 @@ export function getPushService(): PushNotificationService {
 }
 
 export default PushNotificationService;
+
+// Helper to get provider type from defaultPushService
+function getProviderType(): PushProvider {
+    if (!defaultPushService) {
+        throw new Error('Push service not initialized. Call initializePushService() first.');
+    }
+    return defaultPushService['provider'].getProviderType();
+}
