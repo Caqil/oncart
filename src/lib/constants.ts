@@ -38,23 +38,36 @@ export const APP_CONFIG = {
   enableMultiCurrency: true,
   enableMultiLanguage: true,
 } as const;
+export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  VENDOR = 'VENDOR',
+  CUSTOMER = 'CUSTOMER',
+}
 
-// User Roles and Permissions
+export enum UserStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  PENDING = 'PENDING',
+  BANNED = 'BANNED',
+}
 export const USER_ROLES = {
-  SUPER_ADMIN: 'SUPER_ADMIN',
-  ADMIN: 'ADMIN',
-  VENDOR: 'VENDOR',
-  CUSTOMER: 'CUSTOMER',
+  SUPER_ADMIN: 'SUPER_ADMIN' as const,
+  ADMIN: 'ADMIN' as const,
+  VENDOR: 'VENDOR' as const,
+  CUSTOMER: 'CUSTOMER' as const,
 } as const;
 
 export const USER_STATUSES = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE',
-  SUSPENDED: 'SUSPENDED',
-  PENDING: 'PENDING',
-  BANNED: 'BANNED',
+  ACTIVE: 'ACTIVE' as const,
+  INACTIVE: 'INACTIVE' as const,
+  SUSPENDED: 'SUSPENDED' as const,
+  PENDING: 'PENDING' as const,
+  BANNED: 'BANNED' as const,
 } as const;
 
+// Permission constants
 export const PERMISSIONS = {
   // User management
   USERS_READ: 'users:read',
@@ -97,10 +110,10 @@ export const PERMISSIONS = {
   SYSTEM_MANAGE: 'system:manage',
 } as const;
 
-// Role-based permission mapping
+// Role-based permission mapping using enums
 export const ROLE_PERMISSIONS = {
-  [USER_ROLES.SUPER_ADMIN]: ['*'], // All permissions
-  [USER_ROLES.ADMIN]: [
+  [UserRole.SUPER_ADMIN]: ['*'], // All permissions
+  [UserRole.ADMIN]: [
     PERMISSIONS.USERS_READ,
     PERMISSIONS.USERS_WRITE,
     PERMISSIONS.USERS_DELETE,
@@ -117,14 +130,14 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.SETTINGS_WRITE,
     PERMISSIONS.ANALYTICS_READ,
   ],
-  [USER_ROLES.VENDOR]: [
+  [UserRole.VENDOR]: [
     PERMISSIONS.PRODUCTS_READ,
     PERMISSIONS.PRODUCTS_WRITE,
     PERMISSIONS.ORDERS_READ,
     PERMISSIONS.ORDERS_WRITE,
     PERMISSIONS.ANALYTICS_READ,
   ],
-  [USER_ROLES.CUSTOMER]: [
+  [UserRole.CUSTOMER]: [
     PERMISSIONS.PRODUCTS_READ,
     PERMISSIONS.ORDERS_READ,
   ],

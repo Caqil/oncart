@@ -1,3 +1,4 @@
+// src/types/auth.ts - Fixed circular reference
 export enum UserRole {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
@@ -21,7 +22,15 @@ export enum AuthProvider {
   APPLE = 'APPLE',
 }
 
-export interface User {
+export enum Gender {
+  MALE = 'MALE',
+  FEMALE = 'FEMALE',
+  OTHER = 'OTHER',
+  PREFER_NOT_TO_SAY = 'PREFER_NOT_TO_SAY',
+}
+
+// Main User interface for our application
+export interface AppUser {
   id: string;
   email: string;
   emailVerified?: Date | null;
@@ -49,11 +58,20 @@ export interface User {
   updatedAt: Date;
 }
 
-export enum Gender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-  OTHER = 'OTHER',
-  PREFER_NOT_TO_SAY = 'PREFER_NOT_TO_SAY',
+// NextAuth specific user type
+export interface NextAuthUser {
+  id: string;
+  email: string;
+  name?: string | null;
+  image?: string | null;
+  role: UserRole;
+  status: UserStatus;
+  provider: AuthProvider;
+  emailVerified?: Date | null;
+  phone?: string | null;
+  preferredLanguage: string;
+  preferredCurrency: string;
+  twoFactorEnabled: boolean;
 }
 
 export interface Session {
@@ -61,7 +79,7 @@ export interface Session {
   sessionToken: string;
   userId: string;
   expires: Date;
-  user: User;
+  user: AppUser;
 }
 
 export interface Account {
@@ -77,7 +95,7 @@ export interface Account {
   scope?: string | null;
   id_token?: string | null;
   session_state?: string | null;
-  user: User;
+  user: AppUser;
 }
 
 export interface VerificationToken {
@@ -130,7 +148,7 @@ export interface TwoFactorVerification {
 }
 
 export interface AuthResponse {
-  user: User;
+  user: AppUser;
   token?: string;
   refreshToken?: string;
   expiresAt?: Date;
@@ -159,7 +177,7 @@ export interface Role {
   name: string;
   description?: string;
   permissions: Permission[];
-  users: User[];
+  users: AppUser[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -173,7 +191,7 @@ export interface UserPermissions {
 }
 
 export interface AuthState {
-  user: User | null;
+  user: AppUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   permissions: string[];
@@ -183,10 +201,10 @@ export interface AuthState {
 
 export type AuthAction =
   | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: User }
+  | { type: 'LOGIN_SUCCESS'; payload: AppUser }
   | { type: 'LOGIN_FAILURE'; payload: string }
   | { type: 'LOGOUT' }
-  | { type: 'UPDATE_USER'; payload: Partial<User> }
+  | { type: 'UPDATE_USER'; payload: Partial<AppUser> }
   | { type: 'SET_LOADING'; payload: boolean };
 
 export interface JWTPayload {

@@ -281,6 +281,7 @@ export interface CreatePaymentRequest {
 
 export interface ProcessPaymentRequest {
   paymentId: string;
+  orderId: string;
   paymentMethodId?: string;
   confirmationData?: Record<string, any>;
 }

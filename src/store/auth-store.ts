@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { 
-  User, 
   AuthState, 
   AuthAction, 
   UserRole, 
@@ -10,7 +9,8 @@ import {
   RegisterCredentials,
   ChangePasswordRequest,
   TwoFactorVerification,
-  UserPermissions
+  UserPermissions,
+  AppUser
 } from '@/types/auth';
 
 interface AuthStore extends AuthState {
@@ -19,7 +19,7 @@ interface AuthStore extends AuthState {
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
-  updateUser: (userData: Partial<User>) => void;
+  updateUser: (userData: Partial<AppUser>) => void;
   changePassword: (passwordData: ChangePasswordRequest) => Promise<void>;
   enableTwoFactor: () => Promise<{ secret: string; qrCode: string; backupCodes: string[] }>;
   verifyTwoFactor: (data: TwoFactorVerification) => Promise<void>;
@@ -171,7 +171,7 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
       
-      updateUser: (userData: Partial<User>) => {
+      updateUser: (userData: Partial<AppUser>) => {
         const currentUser = get().user;
         if (!currentUser) return;
         

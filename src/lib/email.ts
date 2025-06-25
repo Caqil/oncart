@@ -1,9 +1,6 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import type { EmailSettings, EmailTemplate } from '@/types/settings';
-import type { User } from '@/types/auth';
-import type { Order } from '@/types/order';
-import type { Vendor } from '@/types/vendor';
 
 // Email provider types
 export type EmailProvider = 'smtp' | 'sendgrid' | 'mailgun' | 'resend' | 'ses';

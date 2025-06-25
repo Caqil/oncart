@@ -20,6 +20,7 @@ export default getRequestConfig(async ({ locale }) => {
   if (!locales.includes(locale as any)) notFound();
 
   return {
+    locale: locale as string,
     messages: await import(`../../locales/${locale}/common.json`).then(
       (module) => module.default
     ),

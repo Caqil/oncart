@@ -1,4 +1,6 @@
+// src/lib/validations.ts - Updated with proper enum usage
 import { z } from 'zod';
+import { UserRole, UserStatus, AuthProvider, Gender } from '@/types/auth';
 import { VALIDATION_RULES, ERROR_MESSAGES } from './constants';
 
 // Common validation schemas
@@ -91,10 +93,10 @@ export const userValidations = {
     email: commonValidations.email,
     password: commonValidations.password.optional(),
     phone: commonValidations.phone,
-    role: z.enum(['SUPER_ADMIN', 'ADMIN', 'VENDOR', 'CUSTOMER'] as const),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING', 'BANNED'] as const).optional(),
+    role: z.nativeEnum(UserRole),
+    status: z.nativeEnum(UserStatus).optional(),
     dateOfBirth: z.date().optional(),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const).optional(),
+    gender: z.nativeEnum(Gender).optional(),
   }),
 
   // Update user
@@ -102,10 +104,10 @@ export const userValidations = {
     name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long').optional(),
     email: commonValidations.email.optional(),
     phone: commonValidations.phone,
-    role: z.enum(['SUPER_ADMIN', 'ADMIN', 'VENDOR', 'CUSTOMER'] as const).optional(),
-    status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED', 'PENDING', 'BANNED'] as const).optional(),
+    role: z.nativeEnum(UserRole).optional(),
+    status: z.nativeEnum(UserStatus).optional(),
     dateOfBirth: z.date().optional(),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY'] as const).optional(),
+    gender: z.nativeEnum(Gender).optional(),
   }),
 
   // Update profile

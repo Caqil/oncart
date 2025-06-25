@@ -1,10 +1,20 @@
-import type { UserRole, UserPermissions } from '@/types/auth';
-import { PERMISSIONS, ROLE_PERMISSIONS, USER_ROLES } from './constants';
+// src/lib/permissions.ts - Fixed without circular references
+import { UserRole, UserStatus, AppUser } from '@/types/auth';
+import { PERMISSIONS, ROLE_PERMISSIONS } from './constants';
 
 // Permission types
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
 export type Resource = 'users' | 'vendors' | 'products' | 'orders' | 'payments' | 'settings' | 'analytics' | 'system';
 export type Action = 'read' | 'write' | 'delete' | 'approve' | 'manage';
+
+// User permissions interface
+export interface UserPermissions {
+  canRead: boolean;
+  canWrite: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canManage: boolean;
+}
 
 // Permission checker class
 export class PermissionChecker {
@@ -19,7 +29,7 @@ export class PermissionChecker {
   // Check if user has a specific permission
   hasPermission(permission: Permission): boolean {
     // Super admin has all permissions
-    if (this.userRole === USER_ROLES.SUPER_ADMIN) {
+    if (this.userRole === UserRole.SUPER_ADMIN) {
       return true;
     }
 
@@ -59,10 +69,10 @@ export class PermissionChecker {
   // Check if user has role hierarchy (admin can do what vendors can do)
   hasRoleOrHigher(role: UserRole): boolean {
     const hierarchy = [
-      USER_ROLES.CUSTOMER,
-      USER_ROLES.VENDOR,
-      USER_ROLES.ADMIN,
-      USER_ROLES.SUPER_ADMIN,
+      UserRole.CUSTOMER,
+      UserRole.VENDOR,
+      UserRole.ADMIN,
+      UserRole.SUPER_ADMIN,
     ];
 
     const userRoleIndex = hierarchy.indexOf(this.userRole);
@@ -76,28 +86,28 @@ export class PermissionChecker {
     return {
       canRead: this.hasResourcePermission('products', 'read') || 
                this.hasResourcePermission('orders', 'read') ||
-               this.hasRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]),
+               this.hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
       canWrite: this.hasResourcePermission('products', 'write') || 
                 this.hasResourcePermission('orders', 'write') ||
-                this.hasRole([USER_ROLES.VENDOR, USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]),
+                this.hasRole([UserRole.VENDOR, UserRole.ADMIN, UserRole.SUPER_ADMIN]),
       canUpdate: this.hasResourcePermission('products', 'write') || 
                  this.hasResourcePermission('orders', 'write') ||
-                 this.hasRole([USER_ROLES.VENDOR, USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]),
+                 this.hasRole([UserRole.VENDOR, UserRole.ADMIN, UserRole.SUPER_ADMIN]),
       canDelete: this.hasResourcePermission('products', 'delete') || 
                  this.hasResourcePermission('orders', 'delete') ||
-                 this.hasRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]),
+                 this.hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]),
       canManage: this.hasResourcePermission('system', 'manage') ||
-                 this.hasRole([USER_ROLES.SUPER_ADMIN]),
+                 this.hasRole([UserRole.SUPER_ADMIN]),
     };
   }
 
   // Check permissions for specific entities
   canAccessAdminPanel(): boolean {
-    return this.hasRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]);
+    return this.hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
   }
 
   canAccessVendorPanel(): boolean {
-    return this.hasRole([USER_ROLES.VENDOR, USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]);
+    return this.hasRole([UserRole.VENDOR, UserRole.ADMIN, UserRole.SUPER_ADMIN]);
   }
 
   canManageUsers(): boolean {
@@ -142,11 +152,11 @@ export class PermissionChecker {
 
   // Entity-specific permissions
   canEditOwnProducts(): boolean {
-    return this.hasRole(USER_ROLES.VENDOR) || this.canManageProducts();
+    return this.hasRole(UserRole.VENDOR) || this.canManageProducts();
   }
 
   canViewOwnOrders(): boolean {
-    return this.hasRole([USER_ROLES.CUSTOMER, USER_ROLES.VENDOR]) || this.canManageOrders();
+    return this.hasRole([UserRole.CUSTOMER, UserRole.VENDOR]) || this.canManageOrders();
   }
 
   canEditOwnProfile(): boolean {
@@ -154,41 +164,41 @@ export class PermissionChecker {
   }
 
   canDeleteOwnAccount(): boolean {
-    return this.hasRole([USER_ROLES.CUSTOMER, USER_ROLES.VENDOR]);
+    return this.hasRole([UserRole.CUSTOMER, UserRole.VENDOR]);
   }
 
   // Vendor-specific permissions
   canCreateProducts(): boolean {
-    return this.hasRole(USER_ROLES.VENDOR) || this.hasPermission(PERMISSIONS.PRODUCTS_WRITE);
+    return this.hasRole(UserRole.VENDOR) || this.hasPermission(PERMISSIONS.PRODUCTS_WRITE);
   }
 
   canManageOwnStore(): boolean {
-    return this.hasRole(USER_ROLES.VENDOR);
+    return this.hasRole(UserRole.VENDOR);
   }
 
   canViewEarnings(): boolean {
-    return this.hasRole(USER_ROLES.VENDOR) || this.canViewAnalytics();
+    return this.hasRole(UserRole.VENDOR) || this.canViewAnalytics();
   }
 
   canRequestPayout(): boolean {
-    return this.hasRole(USER_ROLES.VENDOR);
+    return this.hasRole(UserRole.VENDOR);
   }
 
   // Admin-specific permissions
   canBanUsers(): boolean {
-    return this.hasRole([USER_ROLES.ADMIN, USER_ROLES.SUPER_ADMIN]);
+    return this.hasRole([UserRole.ADMIN, UserRole.SUPER_ADMIN]);
   }
 
   canConfigureSystem(): boolean {
-    return this.hasRole(USER_ROLES.SUPER_ADMIN);
+    return this.hasRole(UserRole.SUPER_ADMIN);
   }
 
   canAccessSystemLogs(): boolean {
-    return this.hasRole(USER_ROLES.SUPER_ADMIN);
+    return this.hasRole(UserRole.SUPER_ADMIN);
   }
 
   canManageBackups(): boolean {
-    return this.hasRole(USER_ROLES.SUPER_ADMIN);
+    return this.hasRole(UserRole.SUPER_ADMIN);
   }
 }
 
@@ -210,7 +220,7 @@ export function requirePermission(permission: Permission) {
 }
 
 export function requireRole(role: UserRole | UserRole[]) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function ( descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function (...args: any[]) {
@@ -227,7 +237,7 @@ export function requireRole(role: UserRole | UserRole[]) {
 }
 
 export function requireRoleOrHigher(role: UserRole) {
-  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+  return function ( descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
 
     descriptor.value = function (...args: any[]) {
@@ -263,7 +273,7 @@ export class PermissionValidator {
   }
 
   static validateRoleString(role: string): boolean {
-    return Object.values(USER_ROLES).includes(role as UserRole);
+    return Object.values(UserRole).includes(role as UserRole);
   }
 
   static getPermissionsForRole(role: UserRole): string[] {
@@ -275,7 +285,7 @@ export class PermissionValidator {
   }
 
   static getAllRoles(): UserRole[] {
-    return Object.values(USER_ROLES);
+    return Object.values(UserRole);
   }
 
   static getResourcePermissions(resource: Resource): Permission[] {
@@ -322,7 +332,7 @@ export class ResourceAccessControl {
 
   canDeleteUser(targetUserId: string, currentUserId: string): boolean {
     // Users cannot delete their own account if they're super admin
-    if (targetUserId === currentUserId && this.checker.hasRole(USER_ROLES.SUPER_ADMIN)) {
+    if (targetUserId === currentUserId && this.checker.hasRole(UserRole.SUPER_ADMIN)) {
       return false;
     }
 
@@ -343,7 +353,7 @@ export class ResourceAccessControl {
 
   canEditProduct(productId: string, vendorId: string, currentUserId: string): boolean {
     // Vendors can edit their own products
-    if (vendorId === currentUserId && this.checker.hasRole(USER_ROLES.VENDOR)) {
+    if (vendorId === currentUserId && this.checker.hasRole(UserRole.VENDOR)) {
       return true;
     }
 
@@ -353,7 +363,7 @@ export class ResourceAccessControl {
 
   canDeleteProduct(productId: string, vendorId: string, currentUserId: string): boolean {
     // Vendors can delete their own products
-    if (vendorId === currentUserId && this.checker.hasRole(USER_ROLES.VENDOR)) {
+    if (vendorId === currentUserId && this.checker.hasRole(UserRole.VENDOR)) {
       return true;
     }
 
@@ -369,7 +379,7 @@ export class ResourceAccessControl {
     }
 
     // Vendors can view orders for their products
-    if (vendorId === currentUserId && this.checker.hasRole(USER_ROLES.VENDOR)) {
+    if (vendorId === currentUserId && this.checker.hasRole(UserRole.VENDOR)) {
       return true;
     }
 
@@ -384,7 +394,7 @@ export class ResourceAccessControl {
     }
 
     // Vendors can edit orders for their products (fulfillment)
-    if (vendorId === currentUserId && this.checker.hasRole(USER_ROLES.VENDOR)) {
+    if (vendorId === currentUserId && this.checker.hasRole(UserRole.VENDOR)) {
       return true;
     }
 
@@ -426,7 +436,7 @@ export class ResourceAccessControl {
 
   canEditVendor(vendorId: string, vendorUserId: string, currentUserId: string): boolean {
     // Vendors can edit their own profile
-    if (vendorUserId === currentUserId && this.checker.hasRole(USER_ROLES.VENDOR)) {
+    if (vendorUserId === currentUserId && this.checker.hasRole(UserRole.VENDOR)) {
       return true;
     }
 
@@ -539,15 +549,15 @@ export function getUserAccessLevel(user: { role: UserRole; permissions?: string[
 // Export commonly used permission checks
 export const PermissionChecks = {
   // Admin checks
-  isAdmin: (user: { role: UserRole }) => user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUPER_ADMIN,
-  isSuperAdmin: (user: { role: UserRole }) => user.role === USER_ROLES.SUPER_ADMIN,
+  isAdmin: (user: { role: UserRole }) => user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN,
+  isSuperAdmin: (user: { role: UserRole }) => user.role === UserRole.SUPER_ADMIN,
   
   // Vendor checks
-  isVendor: (user: { role: UserRole }) => user.role === USER_ROLES.VENDOR,
-  canSell: (user: { role: UserRole }) => user.role === USER_ROLES.VENDOR || user.role === USER_ROLES.ADMIN || user.role === USER_ROLES.SUPER_ADMIN,
+  isVendor: (user: { role: UserRole }) => user.role === UserRole.VENDOR,
+  canSell: (user: { role: UserRole }) => user.role === UserRole.VENDOR || user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN,
   
   // Customer checks
-  isCustomer: (user: { role: UserRole }) => user.role === USER_ROLES.CUSTOMER,
+  isCustomer: (user: { role: UserRole }) => user.role === UserRole.CUSTOMER,
   canPurchase: (user: { role: UserRole }) => true, // All authenticated users can purchase
   
   // General checks

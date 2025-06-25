@@ -1,4 +1,5 @@
-import { NextAuthOptions, Session, User as NextAuthUser } from 'next-auth';
+// src/lib/auth.ts - Fixed without circular references
+import { NextAuthOptions, User as NextAuthUser } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
@@ -6,44 +7,16 @@ import FacebookProvider from 'next-auth/providers/facebook';
 import GitHubProvider from 'next-auth/providers/github';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
-import type { 
-  User, 
+import { 
+  AppUser, 
   UserRole, 
   UserStatus,
   AuthProvider,
-  JWTPayload,
   LoginCredentials,
   RegisterCredentials
 } from '@/types/auth';
 
-// Extend NextAuth types to match our User type
-declare module 'next-auth' {
-  interface Session {
-    user: User;
-  }
-  
-  interface User extends NextAuthUser {
-    role: UserRole;
-    status: UserStatus;
-    provider: AuthProvider;
-    emailVerified?: Date | null;
-    phone?: string | null;
-    preferredLanguage: string;
-    preferredCurrency: string;
-    twoFactorEnabled: boolean;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT extends JWTPayload {
-    role: UserRole;
-    status: UserStatus;
-    permissions: string[];
-  }
-}
-
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -51,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials): Promise<User | null> {
+      async authorize(credentials): Promise<NextAuthUser | null> {
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email and password are required');
         }
@@ -87,7 +60,7 @@ export const authOptions: NextAuthOptions = {
           data: { lastLoginAt: new Date() }
         });
 
-        return transformPrismaUserToAuthUser(user);
+        return transformPrismaUserToNextAuthUser(user);
       }
     }),
     
@@ -114,7 +87,7 @@ export const authOptions: NextAuthOptions = {
   
   pages: {
     signIn: '/auth/signin',
-    signUp: '/auth/signup',
+    newUser: '/auth/signup',
     error: '/auth/error',
     verifyRequest: '/auth/verify',
   },
@@ -162,6 +135,7 @@ export const authOptions: NextAuthOptions = {
         token.sub = user.id;
         token.email = user.email!;
         token.role = user.role;
+        token.status = user.status;
         token.permissions = await getUserPermissions(user.id);
         token.iat = Math.floor(Date.now() / 1000);
         token.exp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days
@@ -186,7 +160,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (user) {
-          session.user = transformPrismaUserToAuthUser(user);
+          session.user = transformPrismaUserToNextAuthUser(user);
         }
       }
       
@@ -220,7 +194,7 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword);
 }
 
-export async function createUser(credentials: RegisterCredentials): Promise<User> {
+export async function createUser(credentials: RegisterCredentials): Promise<AppUser> {
   const existingUser = await db.user.findUnique({
     where: { email: credentials.email }
   });
@@ -265,10 +239,10 @@ export async function createUser(credentials: RegisterCredentials): Promise<User
     // Add to newsletter logic here
   }
 
-  return transformPrismaUserToAuthUser(user);
+  return transformPrismaUserToAppUser(user);
 }
 
-export async function createOAuthUser(user: NextAuthUser, provider: string): Promise<User> {
+export async function createOAuthUser(user: NextAuthUser, provider: string): Promise<NextAuthUser> {
   const newUser = await db.user.create({
     data: {
       email: user.email!,
@@ -298,7 +272,7 @@ export async function createOAuthUser(user: NextAuthUser, provider: string): Pro
     }
   });
 
-  return transformPrismaUserToAuthUser(newUser);
+  return transformPrismaUserToNextAuthUser(newUser);
 }
 
 export async function getUserPermissions(userId: string): Promise<string[]> {
@@ -321,10 +295,10 @@ export async function getUserPermissions(userId: string): Promise<string[]> {
   }
 
   const permissions = user.roles.flatMap(role => 
-    role.permissions.map(permission => permission.name)
+    role.permissions.map(permission => permission.name as string)
   );
 
-  return [...new Set(permissions)];
+  return [...new Set(permissions)] as string[];
 }
 
 export async function hasPermission(userId: string, permission: string): Promise<boolean> {
@@ -552,8 +526,26 @@ export async function disableTwoFactor(userId: string): Promise<void> {
   });
 }
 
-// Helper to transform Prisma user to our User type
-function transformPrismaUserToAuthUser(prismaUser: any): User {
+// Helper to transform Prisma user to NextAuth User type
+function transformPrismaUserToNextAuthUser(prismaUser: any): NextAuthUser {
+  return {
+    id: prismaUser.id,
+    email: prismaUser.email,
+    emailVerified: prismaUser.emailVerified,
+    name: prismaUser.name,
+    image: prismaUser.image,
+    role: prismaUser.role,
+    status: prismaUser.status,
+    provider: prismaUser.provider,
+    phone: prismaUser.phone,
+    preferredLanguage: prismaUser.preferredLanguage,
+    preferredCurrency: prismaUser.preferredCurrency,
+    twoFactorEnabled: prismaUser.twoFactorEnabled,
+  };
+}
+
+// Helper to transform Prisma user to our AppUser type
+function transformPrismaUserToAppUser(prismaUser: any): AppUser {
   return {
     id: prismaUser.id,
     email: prismaUser.email,
@@ -571,6 +563,11 @@ function transformPrismaUserToAuthUser(prismaUser: any): User {
     timezone: prismaUser.timezone,
     lastLoginAt: prismaUser.lastLoginAt,
     twoFactorEnabled: prismaUser.twoFactorEnabled,
+    twoFactorSecret: prismaUser.twoFactorSecret,
+    passwordResetToken: prismaUser.passwordResetToken,
+    passwordResetExpires: prismaUser.passwordResetExpires,
+    emailVerificationToken: prismaUser.emailVerificationToken,
+    emailVerificationExpires: prismaUser.emailVerificationExpires,
     createdAt: prismaUser.createdAt,
     updatedAt: prismaUser.updatedAt,
   };
