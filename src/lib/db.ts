@@ -819,17 +819,4 @@ export function query(model: any) {
   return new QueryBuilder(model);
 }
 
-// Graceful shutdown handler
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT, shutting down gracefully...');
-  await db.gracefulShutdown();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, shutting down gracefully...');
-  await db.gracefulShutdown();
-  process.exit(0);
-});
-
 export default db;
