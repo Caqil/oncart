@@ -344,6 +344,7 @@ export interface UpdateOrderRequest {
 }
 
 export interface OrderListFilters {
+    
   status?: OrderStatus;
   paymentStatus?: PaymentStatus;
   fulfillmentStatus?: FulfillmentStatus;

@@ -559,3 +559,385 @@ export const TIME_CONSTANTS = {
 export const isDevelopment = process.env.NODE_ENV === 'development';
 export const isProduction = process.env.NODE_ENV === 'production';
 export const isTest = process.env.NODE_ENV === 'test';
+
+
+// Supported currencies for the platform
+export const SUPPORTED_CURRENCIES = [
+  {
+    code: 'USD',
+    name: 'US Dollar',
+    symbol: '$',
+    locale: 'en-US',
+    format: '$#,##0.00',
+    isDefault: true,
+  },
+  {
+    code: 'EUR',
+    name: 'Euro',
+    symbol: '€',
+    locale: 'de-DE',
+    format: '#.##0,00 €',
+    isDefault: false,
+  },
+  {
+    code: 'GBP',
+    name: 'British Pound',
+    symbol: '£',
+    locale: 'en-GB',
+    format: '£#,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'JPY',
+    name: 'Japanese Yen',
+    symbol: '¥',
+    locale: 'ja-JP',
+    format: '¥#,##0',
+    isDefault: false,
+  },
+  {
+    code: 'CAD',
+    name: 'Canadian Dollar',
+    symbol: 'C$',
+    locale: 'en-CA',
+    format: 'C$#,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'AUD',
+    name: 'Australian Dollar',
+    symbol: 'A$',
+    locale: 'en-AU',
+    format: 'A$#,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'CHF',
+    name: 'Swiss Franc',
+    symbol: 'CHF',
+    locale: 'de-CH',
+    format: 'CHF #,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'CNY',
+    name: 'Chinese Yuan',
+    symbol: '¥',
+    locale: 'zh-CN',
+    format: '¥#,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'INR',
+    name: 'Indian Rupee',
+    symbol: '₹',
+    locale: 'en-IN',
+    format: '₹#,##,##0.00',
+    isDefault: false,
+  },
+  {
+    code: 'BRL',
+    name: 'Brazilian Real',
+    symbol: 'R$',
+    locale: 'pt-BR',
+    format: 'R$ #.##0,00',
+    isDefault: false,
+  },
+] as const;
+
+// Supported languages for the platform
+export const SUPPORTED_LANGUAGES = [
+  {
+    code: 'en',
+    name: 'English',
+    nativeName: 'English',
+    flag: '🇺🇸',
+    locale: 'en-US',
+    direction: 'ltr',
+    isDefault: true,
+    currency: 'USD',
+    dateFormat: 'MM/dd/yyyy',
+    timeFormat: '12h',
+    numberFormat: '#,##0.00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'es',
+    name: 'Spanish',
+    nativeName: 'Español',
+    flag: '🇪🇸',
+    locale: 'es-ES',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'EUR',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '24h',
+    numberFormat: '#.##0,00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'fr',
+    name: 'French',
+    nativeName: 'Français',
+    flag: '🇫🇷',
+    locale: 'fr-FR',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'EUR',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '24h',
+    numberFormat: '#.##0,00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'de',
+    name: 'German',
+    nativeName: 'Deutsch',
+    flag: '🇩🇪',
+    locale: 'de-DE',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'EUR',
+    dateFormat: 'dd.MM.yyyy',
+    timeFormat: '24h',
+    numberFormat: '#.##0,00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'it',
+    name: 'Italian',
+    nativeName: 'Italiano',
+    flag: '🇮🇹',
+    locale: 'it-IT',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'EUR',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '24h',
+    numberFormat: '#.##0,00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'pt',
+    name: 'Portuguese',
+    nativeName: 'Português',
+    flag: '🇵🇹',
+    locale: 'pt-PT',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'EUR',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '24h',
+    numberFormat: '#.##0,00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'ja',
+    name: 'Japanese',
+    nativeName: '日本語',
+    flag: '🇯🇵',
+    locale: 'ja-JP',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'JPY',
+    dateFormat: 'yyyy/MM/dd',
+    timeFormat: '24h',
+    numberFormat: '#,##0',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'zh',
+    name: 'Chinese (Simplified)',
+    nativeName: '简体中文',
+    flag: '🇨🇳',
+    locale: 'zh-CN',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'CNY',
+    dateFormat: 'yyyy/MM/dd',
+    timeFormat: '24h',
+    numberFormat: '#,##0.00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'ar',
+    name: 'Arabic',
+    nativeName: 'العربية',
+    flag: '🇸🇦',
+    locale: 'ar-SA',
+    direction: 'rtl',
+    isDefault: false,
+    currency: 'USD',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '12h',
+    numberFormat: '#,##0.00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    code: 'hi',
+    name: 'Hindi',
+    nativeName: 'हिन्दी',
+    flag: '🇮🇳',
+    locale: 'hi-IN',
+    direction: 'ltr',
+    isDefault: false,
+    currency: 'INR',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: '12h',
+    numberFormat: '#,##,##0.00',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+] as const;
+
+// Setup-specific constants
+export const SETUP_STEPS = [
+  'database',
+  'admin', 
+  'settings',
+  'complete'
+] as const;
+
+export const SETUP_STATUS = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS', 
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+} as const;
+
+// Database setup constants
+export const REQUIRED_TABLES = [
+  'User',
+  'Vendor', 
+  'Product',
+  'ProductCategory',
+  'ProductImage',
+  'Order',
+  'OrderItem',
+  'Payment',
+  'Shipping',
+  'Review',
+  'Coupon',
+  'Setting',
+  'Language',
+  'Currency',
+  'ShippingMethod',
+  'PaymentMethod',
+  'Tax',
+  'Webhook',
+] as const;
+
+// Setup validation
+export const SETUP_VALIDATION = {
+  SITE_NAME_MIN_LENGTH: 2,
+  SITE_NAME_MAX_LENGTH: 100,
+  ADMIN_PASSWORD_MIN_LENGTH: 8,
+  URL_REGEX: /^https?:\/\/.+/,
+  EMAIL_REGEX: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+} as const;
+
+// Sample data options
+export const SAMPLE_DATA_OPTIONS = {
+  BASIC: 'basic', // Just categories and settings
+  DEMO: 'demo', // Categories, products, vendors
+  FULL: 'full', // Everything including sample orders
+} as const;
+
+// Timezone options for setup
+export const SUPPORTED_TIMEZONES = [
+  { value: 'UTC', label: 'UTC (Coordinated Universal Time)', offset: '+00:00' },
+  { value: 'America/New_York', label: 'Eastern Time (ET)', offset: '-05:00' },
+  { value: 'America/Chicago', label: 'Central Time (CT)', offset: '-06:00' },
+  { value: 'America/Denver', label: 'Mountain Time (MT)', offset: '-07:00' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)', offset: '-08:00' },
+  { value: 'Europe/London', label: 'London (GMT)', offset: '+00:00' },
+  { value: 'Europe/Paris', label: 'Paris (CET)', offset: '+01:00' },
+  { value: 'Europe/Berlin', label: 'Berlin (CET)', offset: '+01:00' },
+  { value: 'Europe/Rome', label: 'Rome (CET)', offset: '+01:00' },
+  { value: 'Europe/Madrid', label: 'Madrid (CET)', offset: '+01:00' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (JST)', offset: '+09:00' },
+  { value: 'Asia/Shanghai', label: 'Shanghai (CST)', offset: '+08:00' },
+  { value: 'Asia/Kolkata', label: 'India (IST)', offset: '+05:30' },
+  { value: 'Asia/Dubai', label: 'Dubai (GST)', offset: '+04:00' },
+  { value: 'Australia/Sydney', label: 'Sydney (AEST)', offset: '+10:00' },
+  { value: 'Australia/Melbourne', label: 'Melbourne (AEST)', offset: '+10:00' },
+  { value: 'Pacific/Auckland', label: 'Auckland (NZST)', offset: '+12:00' },
+] as const;
+
+// Default settings for new installations
+export const DEFAULT_SETUP_SETTINGS = {
+  SITE_NAME: 'My Store',
+  SITE_DESCRIPTION: 'A modern multi-vendor ecommerce platform',
+  CURRENCY: 'USD',
+  LANGUAGE: 'en',
+  TIMEZONE: 'UTC',
+  ALLOW_REGISTRATION: true,
+  REQUIRE_EMAIL_VERIFICATION: true,
+  ENABLE_MULTIVENDOR: true,
+  DEFAULT_SHIPPING_RATE: 10.00,
+  DEFAULT_TAX_RATE: 0.00,
+  ENABLE_REVIEWS: true,
+  ENABLE_WISHLIST: true,
+  ENABLE_COUPONS: true,
+  ENABLE_ANALYTICS: true,
+} as const;
+
+// Setup progress tracking
+export const SETUP_PROGRESS_STEPS = [
+  {
+    id: 'database',
+    title: 'Database Setup',
+    description: 'Initialize database and apply migrations',
+    weight: 30, // Percentage of total setup
+  },
+  {
+    id: 'admin',
+    title: 'Admin Account', 
+    description: 'Create administrator account',
+    weight: 20,
+  },
+  {
+    id: 'settings',
+    title: 'Store Settings',
+    description: 'Configure basic store settings',
+    weight: 30,
+  },
+  {
+    id: 'complete',
+    title: 'Finalization',
+    description: 'Complete setup and prepare platform',
+    weight: 20,
+  },
+] as const;
+
+// Error messages specific to setup
+export const SETUP_ERROR_MESSAGES = {
+  DATABASE_CONNECTION_FAILED: 'Failed to connect to database',
+  MIGRATION_FAILED: 'Database migration failed',
+  SEED_DATA_FAILED: 'Failed to load initial data',
+  ADMIN_CREATION_FAILED: 'Failed to create administrator account',
+  ADMIN_ALREADY_EXISTS: 'Administrator account already exists',
+  SETTINGS_SAVE_FAILED: 'Failed to save store settings',
+  SETUP_ALREADY_COMPLETED: 'Setup has already been completed',
+  INVALID_SETUP_DATA: 'Invalid setup data provided',
+  SETUP_COMPLETION_FAILED: 'Failed to complete setup process',
+} as const;
+
+// Success messages for setup
+export const SETUP_SUCCESS_MESSAGES = {
+  DATABASE_INITIALIZED: 'Database initialized successfully',
+  MIGRATIONS_APPLIED: 'Database migrations applied successfully',
+  SEED_DATA_LOADED: 'Initial data loaded successfully',
+  ADMIN_CREATED: 'Administrator account created successfully',
+  SETTINGS_SAVED: 'Store settings saved successfully',
+  SETUP_COMPLETED: 'Setup completed successfully! Welcome to your new store.',
+} as const;
