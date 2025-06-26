@@ -12,71 +12,51 @@ interface UseThemeReturn {
 }
 
 export function useTheme(): UseThemeReturn {
-  const [theme, setThemeStorage] = useLocalStorage<Theme>('theme', 'system');
+  const [storedTheme, setStoredTheme] = useLocalStorage<Theme>('theme', 'system');
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
-  // Listen for system theme changes
+  // Detect system theme
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = (e: MediaQueryListEvent) => {
       setSystemTheme(e.matches ? 'dark' : 'light');
     };
 
-    // Set initial value
     setSystemTheme(mediaQuery.matches ? 'dark' : 'light');
+    mediaQuery.addEventListener('change', handleChange);
 
-    // Add listener
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-    } else {
-      // Fallback for older browsers
-      mediaQuery.addListener(handleChange);
-    }
-
-    // Cleanup
-    return () => {
-      if (mediaQuery.removeEventListener) {
-        mediaQuery.removeEventListener('change', handleChange);
-      } else {
-        // Fallback for older browsers
-        mediaQuery.removeListener(handleChange);
-      }
-    };
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   // Apply theme to document
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const root = window.document.documentElement;
-    const resolvedTheme = theme === 'system' ? systemTheme : theme;
-
+    const root = document.documentElement;
+    const resolvedTheme = storedTheme === 'system' ? systemTheme : storedTheme;
+    
     root.classList.remove('light', 'dark');
     root.classList.add(resolvedTheme);
     
     // Update meta theme-color
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', resolvedTheme === 'dark' ? '#000000' : '#ffffff');
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', resolvedTheme === 'dark' ? '#000000' : '#ffffff');
     }
-  }, [theme, systemTheme]);
+  }, [storedTheme, systemTheme]);
 
-  const setTheme = useCallback((newTheme: Theme): void => {
-    setThemeStorage(newTheme);
-  }, [setThemeStorage]);
+  const setTheme = useCallback((theme: Theme) => {
+    setStoredTheme(theme);
+  }, [setStoredTheme]);
 
-  const toggleTheme = useCallback((): void => {
-    const newTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
-    setTheme(newTheme);
-  }, [theme, setTheme]);
+  const toggleTheme = useCallback(() => {
+    const currentResolvedTheme = storedTheme === 'system' ? systemTheme : storedTheme;
+    setTheme(currentResolvedTheme === 'light' ? 'dark' : 'light');
+  }, [storedTheme, systemTheme, setTheme]);
 
-  const resolvedTheme = theme === 'system' ? systemTheme : theme;
+  const resolvedTheme = storedTheme === 'system' ? systemTheme : storedTheme;
 
   return {
-    theme,
+    theme: storedTheme,
     resolvedTheme,
     setTheme,
     toggleTheme,

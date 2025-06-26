@@ -232,7 +232,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  <LoadingSpinner className="mx-auto" />
+                  <LoadingSpinner />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (

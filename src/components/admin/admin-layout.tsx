@@ -7,9 +7,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminHeader } from "./admin-header";
-import { AdminBreadcrumb } from "./admin-breadcrumb";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import LoadingSpinner from "../common/loading-spinner";
+import { Breadcrumb } from "../ui/breadcrumb";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -111,7 +112,7 @@ export function AdminLayout({
           <div className="container py-6 space-y-6">
             {(title || description) && (
               <div className="space-y-2">
-                <AdminBreadcrumb />
+                <Breadcrumb />
                 {title && (
                   <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
                 )}
@@ -127,91 +128,5 @@ export function AdminLayout({
 
       <Toaster />
     </div>
-  );
-}
-
-// src/components/admin/admin-breadcrumb.tsx
-("use client");
-
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Home } from "lucide-react";
-import LoadingSpinner from "../common/loading-spinner";
-
-export function AdminBreadcrumb() {
-  const pathname = usePathname();
-  const segments = pathname.split("/").filter(Boolean);
-
-  // Remove 'admin' from segments if it's the first segment
-  const adminIndex = segments.indexOf("admin");
-  const breadcrumbSegments =
-    adminIndex !== -1 ? segments.slice(adminIndex + 1) : segments;
-
-  const generateBreadcrumbs = () => {
-    const breadcrumbs = [
-      {
-        name: "Dashboard",
-        href: "/admin",
-        isLast: breadcrumbSegments.length === 0,
-      },
-    ];
-
-    let currentPath = "/admin";
-
-    breadcrumbSegments.forEach((segment, index) => {
-      currentPath += `/${segment}`;
-      const isLast = index === breadcrumbSegments.length - 1;
-
-      // Beautify segment names
-      const name = segment
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-
-      breadcrumbs.push({
-        name,
-        href: currentPath,
-        isLast,
-      });
-    });
-
-    return breadcrumbs;
-  };
-
-  const breadcrumbs = generateBreadcrumbs();
-
-  return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        {breadcrumbs.map((breadcrumb, index) => (
-          <BreadcrumbItem key={breadcrumb.href}>
-            {breadcrumb.isLast ? (
-              <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
-            ) : (
-              <>
-                <BreadcrumbLink asChild>
-                  <Link
-                    href={breadcrumb.href}
-                    className="flex items-center gap-1"
-                  >
-                    {index === 0 && <Home className="h-4 w-4" />}
-                    {breadcrumb.name}
-                  </Link>
-                </BreadcrumbLink>
-                <BreadcrumbSeparator />
-              </>
-            )}
-          </BreadcrumbItem>
-        ))}
-      </BreadcrumbList>
-    </Breadcrumb>
   );
 }
