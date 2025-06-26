@@ -405,7 +405,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
       const validation: CartValidation = {
         isValid: false,
-        errors: [{ type: "GENERAL", message: error.message }],
+        errors: [{
+          type: "ITEM_UNAVAILABLE",
+          itemId: "",
+          message: error.message,
+        }],
         warnings: [],
       };
       dispatch({ type: "SET_VALIDATION", payload: validation });
@@ -438,8 +442,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (vendorId: string): number => {
       if (!state.cart) return 0;
       return state.cart.items
-        .filter((item) => item.product.vendorId === vendorId)
-        .reduce((total, item) => total + item.price * item.quantity, 0);
+        .filter((item) => item.vendor.id === vendorId)
+        .reduce((total, item) => total + item.unitPrice * item.quantity, 0);
     },
     [state.cart]
   );
@@ -448,7 +452,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const items = state.cart?.items || [];
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
   const subtotal = items.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.unitPrice * item.quantity,
     0
   );
   const total = state.cart?.total || subtotal;
